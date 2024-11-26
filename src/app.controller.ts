@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Logger, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Param, ParseIntPipe, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
-import { CreateNoticiaJornalDto } from './dtos/create-noticia-jornal-dto';
+import { UpdateUsuarioEnderecoDto } from './dtos/update-usuario-endereco-dto';
+
 
 @Controller('api/v1')
 export class AppController {
@@ -11,17 +12,16 @@ export class AppController {
       
       transport: Transport.RMQ,
       options: {
-        urls: ['amqp://admin:123456@localhost:5672/arquivoprojetormq'],
+        urls: ['amqp://admin:123456@10.136.62.147:5672/arquivoprojetormq'],
         queue: 'admin-backend'
       }
     })
     }
-    @Post('noticias')
+    @Put('endereco/:id')
     @UsePipes(ValidationPipe)
-    async criarEmpresa(@Body() criarNoticiaJornalDto: CreateNoticiaJornalDto){
-      await this.clienteAdminBackend.emit('criar-noticia', criarNoticiaJornalDto);
-      this.logger.log(`noticia enviada: ${JSON.stringify(criarNoticiaJornalDto)}`)
+    async atualizarEndereco(@Param('id', ParseIntPipe) id: number, @Body() updateUsuarioEnderecoDto: UpdateUsuarioEnderecoDto){
+      await this.clienteAdminBackend.emit('atualizar-usuario-endereco', { id, ...updateUsuarioEnderecoDto});
+      this.logger.log(`endereco enviado: ${JSON.stringify({id, ...updateUsuarioEnderecoDto})}`)
     }
-
   }
 
